@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+  <style>
+  	circle.dimple-series-1{
+  		fill:red;
+  		}
+  	h2 {
+  		text-align: center;
+  	}
+  	
+  </style>
+    <script type="text/javascript">
+      function draw(data) {
+      
+      /*
+        D3.js setup code
+      */
+          data.forEach(function(d){ d['week_number'] = +d['week_number']; });  
+          data.forEach(function(d){ d['quality_percent'] = +d['quality_percent']; }); 
+          
+          
+
+          var margin = 75,
+              width = 1400 - margin,
+              height = 600 - margin;
+          
+          	
+          		
+          var svg = d3.select("body")
+              .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+              .append('g')
+              .attr('class','chart');
+              
+          svg.append("text")
+            .attr("x", 138)
+            .attr("y", 15)
+            .style("text-anchor", "left")
+            .style("font-family", "sans-serif")
+            .style("font-weight", "bold")
+            .text("Flight Departure On-time Performance in JFK Airport of 2008 (by week)");
+
+      /*
+        Dimple.js Chart construction code
+      */
+
+          var myChart = new dimple.chart(svg, data);
+          myChart.setBounds(140, 120, 800, 400)
+          
+          var x = myChart.addCategoryAxis("x", "week_number"); 
+          var y = myChart.addMeasureAxis("y", "quality_percent");
+          x.title = "weeks of 2008";
+          y.title = "flight on-time percentage";
+          myChart.addSeries("carrier", dimple.plot.bubble);
+          var avg = myChart.addSeries("Avg", dimple.plot.line, [x, y]);
+          avg.aggregate = dimple.aggregateMethod.avg;
+          
+          var max = myChart.addSeries("Max", dimple.plot.line, [x, y]);
+          max.aggregate = dimple.aggregateMethod.max;
+          myChart.assignColor("Max", "red");
+          myChart.assignColor("Avg", "blue");
+          var myLegend = myChart.addLegend(140, 80, 400, 100, "left");
+          myChart.draw();
+          
+          svg.selectAll("title_text")
+             .data(["Click legend to show/hide carriers:"])
+             .enter()
+             .append("text")
+             .attr("x", 140)
+             .attr("y", 50)
+             .style("font-family", "sans-serif")
+             .style("font-size", "12px")
+             .style("color", "Black")
+             .text(function (d) { return d; });
+             
+          svg.selectAll("explanatory_text")
+            .data(["Flight on-time performance changes drastically over time during a year.",
+                   "Summer and winter seem to be the seasons where passengers would experience",
+                   "more delays in JFK airport. Smart passenger may want to explore more and",
+                   "see which airline will have the best on-time performance during those period."])
+            .enter()
+            .append("text")
+            .attr("x", 530)
+            .attr("y", function(d, i) { return 50 + i *14; } )
+            .style("font-size", "11px")
+            .style("color", "Black")
+            .style("font-family", "sans-serif")
+            .text(function (d) { return d; });
+           
+          myChart.legends = [];
+          
+          
+          var filterValues = dimple.getUniqueValues(data, "carrier");
+          myLegend.shapes.selectAll("rect")
+          			     .on("click", function(e){
+          			     	
+          			     	var hide = false;
+          			     	var newFilters = [];
+          			     	filterValues.forEach(function(f){
+          			     		if(f === e.aggField.slice(-1)[0]){
+          			     			hide = true;
+          			     		} else{
+          			     		  newFilters.push(f);
+          			     		}
+          			     	
+          			     	});
+          			     	
+          			     	if(hide){
+          			     		d3.select(this).style("opacity", 0.2);
+          			     	}
+          			     	else{
+          			     	 newFilters.push(e.aggField.slice(-1)[0]);
+          			     	 d3.select(this).style("opacity", 0.8);
+          			     	}
+          			     	
+          			     	filterValues = newFilters;
+          			     	myChart.data = dimple.filterData(data, "carrier", filterValues);
+          			     	myChart.addSeries("carrier", dimple.plot.bubble);
+          			     	myChart.draw(800);
+          			     	
+          			     });
+          
+        
+          
+        }
+    
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+  d3.csv("week_data_JFK_1.csv", draw);
+  </script>
+</body>
+</html>
