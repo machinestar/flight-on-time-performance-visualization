@@ -9,8 +9,6 @@ Interactive Legend: http://dimplejs.org/advanced_examples_viewer.html?id=advance
 
 Mutiple Line: http://dimplejs.org/examples_viewer.html?id=lines_horizontal_stacked
 
-Udacity Data Visualization with D3.js course: https://www.udacity.com/course/ud507
-
 Data was downloaded from: http://stat-computing.org/dataexpo/2009/the-data.html
 
 
